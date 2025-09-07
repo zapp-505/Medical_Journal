@@ -1,9 +1,8 @@
 from flask import Flask
 from config import Config
-from flask_sqlalchemy import SQLAlchemy
-import os
+from flask_migrate import Migrate
 from flask_login import LoginManager
-from . import db
+from .models import db
 
 def create_app(config_class=Config):
     app = Flask(__name__)
