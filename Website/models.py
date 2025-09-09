@@ -1,70 +1,49 @@
+from . import db
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
+from werkzeug.security import generate_password_hash, check_password_hash
 
-db = SQLAlchemy()
-
-class User(UserMixin, db.Model):
-    __tablename__ = 'users'
-    
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(50), default="patient", nullable=False)  # patient | doctor | admin
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(50), default='patient', nullable=False) # Roles: 'patient', 'doctor'
     created_at = db.Column(db.DateTime(timezone=True), default=func.now())
 
-    # Relationships
+    '''backref='author' → lets you do
+    entry = JournalEntry.query.first() - first record in databse
+    entry.author gives the User who wrote it
+    you can also do  user.journal_entries to get all entry by the user'''
     journal_entries = db.relationship('JournalEntry', backref='author', lazy=True)
-    appointments = db.relationship('Appointment', backref='patient', foreign_keys="Appointment.patient_id")
+    medications = db.relationship('Medication', backref='patient', lazy=True)
+    documents = db.relationship('MedicalDocument', backref='patient', lazy=True)
 
-    # userdefined functions 
     def set_password(self, password):
-        """Hashes and stores the password."""
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password,method='pbkdf2:sha256')
 
     def check_password(self, password):
-        """Verifies if input matches stored password hash."""
         return check_password_hash(self.password_hash, password)
 
-    def is_doctor(self):
-        return self.role == "doctor"
-
-    def is_patient(self):
-        return self.role == "patient"
-
 class JournalEntry(db.Model):
-    __tablename__ = 'journal_entries'
-    
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    severity = db.Column(db.String(50)) # e.g., 'Low', 'Medium', 'High'
+    created_at = db.Column(db.DateTime(timezone=True), default=func.now())
 
-    # 🔑 Functions
-    def summary(self, length=50):
-        """Return a short preview of the journal content."""
-        return (self.content[:length] + '...') if len(self.content) > length else self.content
-
-class Appointment(db.Model):
-    __tablename__ = 'appointments'
-    
+class Medication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    scheduled_time = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(50), default="scheduled")  # scheduled | completed | cancelled
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(150), nullable=False)
+    dosage = db.Column(db.String(100)) # e.g., "500mg"
+    frequency = db.Column(db.String(100)) # e.g., "Twice a day"
     notes = db.Column(db.Text)
 
-    # 🔑 Functions
-    def mark_completed(self):
-        """Mark appointment as completed."""
-        self.status = "completed"
-
-    def cancel(self):
-        """Cancel appointment."""
-        self.status = "cancelled"
+class MedicalDocument(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    filename = db.Column(db.String(200), nullable=False)
+    filepath = db.Column(db.String(300), nullable=False) # Path where the file is stored
+    upload_date = db.Column(db.DateTime(timezone=True), default=func.now())

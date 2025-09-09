@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="my-4">Welcome, {{ user.username }}!</h1>
+<p>This is your personal health dashboard. You can track your symptoms, medications, and view your medical history here.</p>
+
+<div class="row">
+    <div class="col-md-8">
+        <h3>Your Journal Entries</h3>
+        <p>You have no journal entries yet.</p>
+        <a href="#" class="btn btn-primary">Add New Journal Entry</a>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Medications</h5>
+                <p>No medications logged.</p>
+                <a href="#" class="btn btn-secondary">Manage Medications</a>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">My Documents</h5>
+                <p>No documents uploaded.</p>
+                <a href="#" class="btn btn-secondary">Upload Document</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
