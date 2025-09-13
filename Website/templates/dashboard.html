@@ -3,14 +3,46 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="my-4">Welcome, {{ user.username }}!</h1>
-<p>This is your personal health dashboard. You can track your symptoms, medications, and view your medical history here.</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Welcome, {{ user.username }}!</h1>
+    <a href="{{ url_for('views.add_journal') }}" class="btn btn-primary">
+        + Add New Journal Entry
+    </a>
+</div>
 
 <div class="row">
     <div class="col-md-8">
         <h3>Your Journal Entries</h3>
-        <p>You have no journal entries yet.</p>
-        <a href="#" class="btn btn-primary">Add New Journal Entry</a>
+        
+        {% if entries %}
+            {% for entry in entries %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">{{ entry.title }}</h5>
+                        <small class="text-muted">{{ entry.created_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+                    <h6 class="card-subtitle mb-2">Severity: 
+                        <span class="badge 
+                            {% if entry.severity == 'High' %}bg-danger
+                            {% elif entry.severity == 'Medium' %}bg-warning text-dark
+                            {% else %}bg-success
+                            {% endif %}">
+                            {{ entry.severity }}
+                        </span>
+                    </h6>
+                    <p class="card-text">{{ entry.content }}</p>
+                    
+                    <form action="{{ url_for('views.delete_journal', entry_id=entry.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">You have no journal entries yet. Click the button above to add one!</div>
+        {% endif %}
+
     </div>
     <div class="col-md-4">
         <div class="card">

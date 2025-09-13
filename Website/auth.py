@@ -23,7 +23,7 @@ def signup():
 
         flash('Your account has been created successfully!')
         return redirect(url_for('auth.login'))
-    #form=form passes form object inot template and can access it inside login.html
+    #form=form passes form object into template and can access it inside login.html
     return render_template('signup.html', title = 'Sign Up', form=form)
 @auth.route('/login',methods=["GET","POST"])
 def login():
@@ -36,7 +36,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             flash('Login successful!','success')
-            return redirect(url_for('views.dashboard'))
+            return redirect(url_for('views.home'))
         else:
             flash('Please check the email and password','danger')
     return render_template('login.html',title = 'Login', form=form)
