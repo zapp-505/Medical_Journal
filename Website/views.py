@@ -15,7 +15,14 @@ def home():
 @views.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template("dashboard.html", user=current_user)
+    # Always load current user's entries when landing on the dashboard
+    entries = (
+        JournalEntry.query
+        .filter_by(user_id=current_user.id)
+        .order_by(JournalEntry.created_at.desc())
+        .all()
+    )
+    return render_template("dashboard.html", user=current_user, entries=entries)
 
 @views.route('/add-journal',methods=['GET','POST'])
 @login_required
@@ -28,12 +35,13 @@ def add_journal():
             user_id=current_user.id)  # Link the entry to the logged-in user
         db.session.add(new_entry)
         db.session.commit()
-        flash('Journal aadded successfully!',category = 'success')
+        flash('Journal added successfully!', category='success')
         return redirect(url_for('views.dashboard'))
     return render_template("add_journal.html",form=form)
 
 #1. HTML forms don’t support DELETE natively
-@views.route('/delete-journal/<int:entry_id>',methods=['POST'])
+@views.route('/delete-journal/<int:entry_id>', methods=['POST'])
+@login_required
 def delete_journal(entry_id):
     entry_to_delete = JournalEntry.query.get(entry_id)
 
