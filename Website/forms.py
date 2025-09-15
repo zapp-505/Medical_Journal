@@ -36,3 +36,11 @@ class JournalEntryForm(FlaskForm):
                            validators=[DataRequired()])#(value, label)
     
     submit = SubmitField('Save Entry')
+
+class MedicationForm(FlaskForm):
+    name = StringField('Medication Name',validators=[DataRequired()])
+    dosage = StringField('Dosage')
+    frequency = StringField('Frequency (e.g., Twice a day)')
+    notes = TextAreaField('Notes (Optional)')
+    submit = SubmitField('Save Medication')
+    

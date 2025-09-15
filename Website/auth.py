@@ -36,7 +36,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             flash('Login successful!','success')
-            return redirect(url_for('views.home'))
+            return redirect(url_for('views.dashboard'))
         else:
             flash('Please check the email and password','danger')
     return render_template('login.html',title = 'Login', form=form)

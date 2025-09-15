@@ -46,12 +46,30 @@
     </div>
     <div class="col-md-4">
         <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">My Medications</h5>
-                <p>No medications logged.</p>
-                <a href="#" class="btn btn-secondary">Manage Medications</a>
-            </div>
-        </div>
+    <div class="card-body">
+        <h5 class="card-title">My Medications</h5>
+        
+        {% if medications %}
+            <ul class="list-group list-group-flush">
+            {% for med in medications %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ med.name }}</strong>
+                        <small class="d-block text-muted">{{ med.dosage }} - {{ med.frequency }}</small>
+                    </div>
+                    <form action="{{ url_for('views.delete_medication', med_id=med.id) }}" method="POST">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">&times;</button>
+                    </form>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No medications logged.</p>
+        {% endif %}
+
+        <a href="{{ url_for('views.add_medication') }}" class="btn btn-secondary mt-3">Manage Medications</a>
+    </div>
+</div>
         <div class="card mt-3">
             <div class="card-body">
                 <h5 class="card-title">My Documents</h5>
