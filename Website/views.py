@@ -23,7 +23,8 @@ def dashboard():
         .order_by(JournalEntry.created_at.desc())
         .all()
     )
-    return render_template("dashboard.html", user=current_user, entries=entries)
+    medications = Medication.query.filter_by(user_id=current_user.id).all()
+    return render_template("dashboard.html", user=current_user, entries=entries,medications=medications)
 
 @views.route('/add-journal',methods=['GET','POST'])
 @login_required
