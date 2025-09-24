@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from .models import User
 
@@ -43,4 +44,12 @@ class MedicationForm(FlaskForm):
     frequency = StringField('Frequency (e.g., Twice a day)')
     notes = TextAreaField('Notes (Optional)')
     submit = SubmitField('Save Medication')
+
+class DocumentUploadForm(FlaskForm):
+    file = FileField('Document', validators=[
+        FileRequired(),
+        FileAllowed(['pdf', 'png', 'jpg', 'jpeg'], 'Images and PDFs only!')
+    ])
+    submit = SubmitField('Upload')
+
     

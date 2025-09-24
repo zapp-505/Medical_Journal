@@ -13,70 +13,81 @@
 <div class="row">
     <div class="col-md-8">
         <h3>Your Journal Entries</h3>
-        
+
         {% if entries %}
-            {% for entry in entries %}
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title">{{ entry.title }}</h5>
-                        <small class="text-muted">{{ entry.created_at.strftime('%B %d, %Y') }}</small>
-                    </div>
-                    <h6 class="card-subtitle mb-2">Severity: 
-                        <span class="badge 
+        {% for entry in entries %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">{{ entry.title }}</h5>
+                    <small class="text-muted">{{ entry.created_at.strftime('%B %d, %Y') }}</small>
+                </div>
+                <h6 class="card-subtitle mb-2">Severity:
+                    <span class="badge 
                             {% if entry.severity == 'High' %}bg-danger
                             {% elif entry.severity == 'Medium' %}bg-warning text-dark
                             {% else %}bg-success
                             {% endif %}">
-                            {{ entry.severity }}
-                        </span>
-                    </h6>
-                    <p class="card-text">{{ entry.content }}</p>
-                    
-                    <form action="{{ url_for('views.delete_journal', entry_id=entry.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this entry?');">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                    </form>
-                </div>
+                        {{ entry.severity }}
+                    </span>
+                </h6>
+                <p class="card-text">{{ entry.content }}</p>
+
+                <form action="{{ url_for('views.delete_journal', entry_id=entry.id) }}" method="POST"
+                    onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                </form>
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
         {% else %}
-            <div class="alert alert-info">You have no journal entries yet. Click the button above to add one!</div>
+        <div class="alert alert-info">You have no journal entries yet. Click the button above to add one!</div>
         {% endif %}
 
     </div>
     <div class="col-md-4">
         <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Medications</h5>
+
+                {% if medications %}
+                <ul class="list-group list-group-flush">
+                    {% for med in medications %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ med.name }}</strong>
+                            <small class="d-block text-muted">{{ med.dosage }} - {{ med.frequency }}</small>
+                        </div>
+                        <form action="{{ url_for('views.delete_medication', med_id=med.id) }}" method="POST">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">&times;</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No medications logged.</p>
+                {% endif %}
+
+                <a href="{{ url_for('views.add_medication') }}" class="btn btn-secondary mt-3">Manage Medications</a>
+            </div>
+        </div>
+        <div class="card mt-3">
     <div class="card-body">
-        <h5 class="card-title">My Medications</h5>
+        <h5 class="card-title">My Documents</h5>
         
-        {% if medications %}
+        {% if documents %}
             <ul class="list-group list-group-flush">
-            {% for med in medications %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ med.name }}</strong>
-                        <small class="d-block text-muted">{{ med.dosage }} - {{ med.frequency }}</small>
-                    </div>
-                    <form action="{{ url_for('views.delete_medication', med_id=med.id) }}" method="POST">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">&times;</button>
-                    </form>
+            {% for doc in documents %}
+                <li class="list-group-item">
+                    {{ doc.filename }}
                 </li>
             {% endfor %}
             </ul>
         {% else %}
-            <p>No medications logged.</p>
+            <p>No documents uploaded.</p>
         {% endif %}
 
-        <a href="{{ url_for('views.add_medication') }}" class="btn btn-secondary mt-3">Manage Medications</a>
-    </div>
-</div>
-        <div class="card mt-3">
-            <div class="card-body">
-                <h5 class="card-title">My Documents</h5>
-                <p>No documents uploaded.</p>
-                <a href="#" class="btn btn-secondary">Upload Document</a>
-            </div>
-        </div>
+        <a href="{{ url_for('views.upload_document') }}" class="btn btn-secondary mt-3">Upload Document</a>
     </div>
 </div>
 {% endblock %}
