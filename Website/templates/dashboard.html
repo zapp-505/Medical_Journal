@@ -1,93 +1,82 @@
 {% extends "base.html" %}
-
 {% block title %}Dashboard{% endblock %}
 
+{% block styles %}
+<style>
+    .timeline-item {
+        border-left: 3px solid var(--neutral-medium);
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -9px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: white;
+        border: 3px solid var(--primary-blue);
+    }
+    .timeline-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-medium);
+        transition: var(--transition);
+    }
+    .timeline-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-large);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-5">
     <h1 class="h2">Welcome, {{ user.username }}!</h1>
-    <a href="{{ url_for('views.add_journal') }}" class="btn btn-primary">
-        + Add New Journal Entry
-    </a>
+    <div class="btn-group shadow-sm">
+        <a href="{{ url_for('views.medications') }}" class="btn btn-light"><i class="fas fa-pills me-2"></i>My Medications</a>
+        <a href="{{ url_for('views.documents') }}" class="btn btn-light"><i class="fas fa-file-alt me-2"></i>My Documents</a>
+        <a href="{{ url_for('views.add_visit') }}" class="btn btn-health"><i class="fas fa-plus me-2"></i>Record Visit</a>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
-        <h3>Your Journal Entries</h3>
+<h3 class="mb-4">Your Health Timeline</h3>
 
-        {% if entries %}
-        {% for entry in entries %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h5 class="card-title">{{ entry.title }}</h5>
-                    <small class="text-muted">{{ entry.created_at.strftime('%B %d, %Y') }}</small>
+{% if timeline_events %}
+    {% for event in timeline_events %}
+    <div class="timeline-item pb-5">
+        {% if event.type == 'visit' %}
+            <a href="{{ url_for('views.visit_detail', visit_id=event.data.id) }}" class="text-decoration-none">
+                <div class="timeline-card p-4">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-primary"><i class="fas fa-stethoscope me-2"></i>Doctor's Visit: {{ event.data.reason }}</h5>
+                        <small class="text-dark">{{ event.data.visit_date.strftime('%B %d, %Y') }}</small>
+                    </div>
+                    {% if event.data.doctor_name %}<p class="mb-1 text-dark">with <strong>Dr. {{ event.data.doctor_name }}</strong></p>{% endif %}
+                    <p class="mb-0 text-dark"><strong>Diagnosis:</strong> {{ event.data.diagnosis or 'N/A' }}</p>
                 </div>
-                <h6 class="card-subtitle mb-2">Severity:
-                    <span class="badge 
-                            {% if entry.severity == 'High' %}bg-danger
-                            {% elif entry.severity == 'Medium' %}bg-warning text-dark
-                            {% else %}bg-success
-                            {% endif %}">
-                        {{ entry.severity }}
-                    </span>
-                </h6>
-                <p class="card-text">{{ entry.content }}</p>
-
-                <form action="{{ url_for('views.delete_journal', entry_id=entry.id) }}" method="POST"
-                    onsubmit="return confirm('Are you sure you want to delete this entry?');">
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                </form>
+            </a>
+        {% elif event.type == 'journal' %}
+            <div class="timeline-card p-4">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><i class="fas fa-book-medical me-2"></i>Journal Entry: {{ event.data.title }}</h5>
+                    <small>{{ event.data.created_at.strftime('%B %d, %Y') }}</small>
+                </div>
+                <p class="mb-1">{{ event.data.content }}</p>
+                <small>Severity: {{ event.data.severity }}</small>
             </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="alert alert-info">You have no journal entries yet. Click the button above to add one!</div>
         {% endif %}
-
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">My Medications</h5>
-
-                {% if medications %}
-                <ul class="list-group list-group-flush">
-                    {% for med in medications %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ med.name }}</strong>
-                            <small class="d-block text-muted">{{ med.dosage }} - {{ med.frequency }}</small>
-                        </div>
-                        <form action="{{ url_for('views.delete_medication', med_id=med.id) }}" method="POST">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">&times;</button>
-                        </form>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p>No medications logged.</p>
-                {% endif %}
-
-                <a href="{{ url_for('views.add_medication') }}" class="btn btn-secondary mt-3">Manage Medications</a>
-            </div>
-        </div>
-        <div class="card mt-3">
-    <div class="card-body">
-        <h5 class="card-title">My Documents</h5>
-        
-        {% if documents %}
-            <ul class="list-group list-group-flush">
-            {% for doc in documents %}
-                <li class="list-group-item">
-                    {{ doc.filename }}
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No documents uploaded.</p>
-        {% endif %}
-
-        <a href="{{ url_for('views.upload_document') }}" class="btn btn-secondary mt-3">Upload Document</a>
+    {% endfor %}
+{% else %}
+    <div class="text-center p-5 glass-effect" style="border-radius: var(--border-radius);">
+        <h4>Your timeline is empty.</h4>
+        <p class="lead text-muted">Record a visit or add a journal entry to get started!</p>
     </div>
-</div>
+{% endif %}
 {% endblock %}

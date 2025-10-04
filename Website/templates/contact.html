@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">Contact Us</h1>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Get in Touch</h5>
+                    <p class="card-text">
+                        We'd love to hear from you! Whether you have questions, feedback, or need support with Health
+                        Journal, we're here to help.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-envelope"></i> Email Support
+                            </h5>
+                            <p class="card-text">For general inquiries and support:</p>
+                            <p><strong>support@healthjournal.com</strong></p>
+                            <p class="text-muted small">We typically respond within 24 hours</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-shield-check"></i> Privacy & Security
+                            </h5>
+                            <p class="card-text">For privacy or security concerns:</p>
+                            <p><strong>privacy@healthjournal.com</strong></p>
+                            <p class="text-muted small">We take privacy seriously and respond promptly</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Frequently Asked Questions</h5>
+
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse1">
+                                    Is my health data secure?
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes! We use industry-standard encryption and security measures to protect your data.
+                                    See our <a href="{{ url_for('views.privacy') }}">Privacy Policy</a> for more
+                                    details.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse2">
+                                    Can I export my data?
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes, you have the right to export all of your health journal data at any time.
+                                    Contact us for assistance with data export.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse3">
+                                    Is this a replacement for medical care?
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    No, Health Journal is a tracking tool and not a substitute for professional medical
+                                    advice. Always consult with healthcare professionals for medical concerns.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('views.dashboard') if current_user.is_authenticated else url_for('views.home') }}"
+                    class="btn btn-secondary">
+                    {{ 'Back to Dashboard' if current_user.is_authenticated else 'Back to Home' }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

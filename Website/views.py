@@ -1,35 +1,57 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 from flask import current_app
-from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm
-from .models import JournalEntry, Medication, MedicalDocument
+from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm, VisitForm
+from .models import JournalEntry, Medication, MedicalDocument, Visit
 from werkzeug.utils import secure_filename
 from . import db
 import os
+from flask import send_from_directory
 
 views = Blueprint('views',__name__)
 
-@views.route('/')
+@views.route('/', endpoint='home')
 def home():
     if current_user.is_authenticated:
-        entries = JournalEntry.query.filter_by(user_id=current_user.id).order_by(JournalEntry.created_at.desc()).all()
-        medications = Medication.query.filter_by(user_id=current_user.id).all()
-        return render_template("dashboard.html", user=current_user, entries=entries, medications=medications)
+        return redirect(url_for('views.dashboard'))
+    
     return render_template("home.html")
 
 @views.route('/dashboard')
 @login_required
 def dashboard():
-    # Always load current user's entries when landing on the dashboard
-    entries = (
-        JournalEntry.query
-        .filter_by(user_id=current_user.id)
-        .order_by(JournalEntry.created_at.desc())
-        .all()
-    )
-    documents = MedicalDocument.query.filter_by(user_id=current_user.id).all()
-    medications = Medication.query.filter_by(user_id=current_user.id).all()
-    return render_template("dashboard.html", user=current_user, entries=entries,medications=medications,documents=documents)
+    # --- Start of Debugging ---
+    print("\n--- DEBUG: Dashboard Route Started ---")
+
+    # Step 1: Fetching the data
+    visits = Visit.query.filter_by(user_id=current_user.id).all()
+    journals = JournalEntry.query.filter_by(user_id=current_user.id).all()
+    print(f"Found {len(visits)} visits in the database.")
+    print(f"Found {len(journals)} journal entries in the database.")
+
+    # Step 2: Combining the data
+    timeline_events = []
+    for visit in visits:
+        timeline_events.append({'type': 'visit', 'date': visit.visit_date, 'data': visit})
+    print(f"After adding visits, the timeline has {len(timeline_events)} events.")
+
+    for journal in journals:
+        if not journal.visit_id:
+            timeline_events.append({'type': 'journal', 'date': journal.created_at, 'data': journal})
+    print(f"After adding journal entries, the timeline now has {len(timeline_events)} events.")
+
+    # Step 3: Sorting
+    print("Sorting the timeline events...")
+    try:
+        timeline_events.sort(key=lambda x: x['date'], reverse=True)
+        print(f"Sorting complete. The final timeline has {len(timeline_events)} events.")
+    except Exception as e:
+        print(f"!!! ERROR DURING SORTING: {e}")
+
+    # Step 4: Rendering
+    print("--- DEBUG: Sending final list to template and rendering. ---\n")
+    return render_template("dashboard.html", user=current_user, timeline_events=timeline_events)
+
 
 @views.route('/add-journal',methods=['GET','POST'])
 @login_required
@@ -96,6 +118,9 @@ def delete_medication(med_id):
 @login_required
 def upload_document():
     form = DocumentUploadForm()
+    visits = Visit.query.filter_by(user_id=current_user.id).order_by(Visit.visit_date.desc()).all()
+    form.visit.choices = [(v.id, f"{v.visit_date.strftime('%Y-%m-%d')} - {v.reason}") for v in visits]
+    form.visit.choices.insert(0, (0, '--- Do not link to a specific visit ---'))
     if form.validate_on_submit():
         file = form.file.data
         filename = secure_filename(file.filename)
@@ -106,15 +131,111 @@ def upload_document():
         
         filepath = os.path.join(upload_folder, filename)
         file.save(filepath)
+        selected_visit_id = form.visit.data if form.visit.data > 0 else None
 
         # Save file info to the database
         new_doc = MedicalDocument(
             filename=filename,
             filepath=filepath,
-            user_id=current_user.id
+            user_id=current_user.id,
+            visit_id=selected_visit_id  # Save the selected visit_id
         )
         db.session.add(new_doc)
         db.session.commit()
         flash('Document uploaded successfully!', 'success')
         return redirect(url_for('views.dashboard'))
     return render_template('upload_document.html', form=form)
+
+
+@views.route('/add-visit', methods=['GET', 'POST'])
+@login_required
+def add_visit():
+    form = VisitForm()
+    if form.validate_on_submit():
+        new_visit = Visit(
+            doctor_name=form.doctor_name.data,
+            reason=form.reason.data,
+            diagnosis=form.diagnosis.data,
+            visit_date=form.visit_date.data,
+            user_id=current_user.id
+        )
+        db.session.add(new_visit)
+        db.session.commit()
+        flash('Visit has been recorded!', 'success')
+        return redirect(url_for('views.dashboard'))
+    return render_template('add_visit.html', form=form)
+
+@views.route('/visit/<int:visit_id>')
+@login_required
+def visit_detail(visit_id):
+    visit = Visit.query.get_or_404(visit_id)
+    
+    # Security check: ensure the visit belongs to the current user
+    if visit.user_id != current_user.id:
+        abort(403) # Forbidden
+        
+    return render_template("visit_detail.html", visit=visit)
+
+# In Website/views.py
+
+@views.route('/medications')
+@login_required
+def medications():
+    meds = Medication.query.filter_by(user_id=current_user.id).order_by(Medication.name).all()
+    return render_template("medications.html", medications=meds)
+
+@views.route('/documents')
+@login_required
+def documents():
+    docs = MedicalDocument.query.filter_by(user_id=current_user.id).order_by(MedicalDocument.upload_date.desc()).all()
+    return render_template("documents.html", documents=docs)
+
+# This route serves the files securely
+@views.route('/uploads/<filename>')
+@login_required
+def get_file(filename):
+    # Security check to ensure user can only access their own files
+    doc = MedicalDocument.query.filter_by(user_id=current_user.id, filename=filename).first_or_404()
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], doc.filename, as_attachment=True)
+
+@views.route('/delete-document/<int:doc_id>', methods=['POST'])
+@login_required
+def delete_document(doc_id):
+    doc_to_delete = MedicalDocument.query.get(doc_id)
+    if doc_to_delete and doc_to_delete.user_id == current_user.id:
+        # Delete the file from the server
+        try:
+            os.remove(doc_to_delete.filepath)
+        except OSError as e:
+            flash(f"Error deleting file from server: {e}", category='error')
+        
+        # Delete the record from the database
+        db.session.delete(doc_to_delete)
+        db.session.commit()
+        flash('Document deleted.', category='success')
+    else:
+        flash('Document not found or you do not have permission.', category='error')
+    return redirect(url_for('views.documents'))
+
+# Static page routes
+@views.route('/profile')
+@login_required
+def profile():
+    return render_template("profile.html", user=current_user)
+
+@views.route('/about')
+def about():
+    return render_template("about.html")
+
+@views.route('/privacy')
+def privacy():
+    return render_template("privacy.html")
+
+@views.route('/terms')
+def terms():
+    return render_template("terms.html")
+
+@views.route('/contact')
+def contact():
+    return render_template("contact.html")
+

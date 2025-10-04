@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Terms of Service</h1>
+            <p class="text-muted">Last updated: {{ now.strftime('%B %d, %Y') }}</p>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Acceptance of Terms</h5>
+                    <p>By accessing and using Health Journal, you accept and agree to be bound by the terms and
+                        provision of this agreement.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Use License</h5>
+                    <p>Permission is granted to temporarily use Health Journal for personal, non-commercial health
+                        tracking purposes. This license shall automatically terminate if you violate any of these
+                        restrictions.</p>
+
+                    <p><strong>You may not:</strong></p>
+                    <ul>
+                        <li>Use the service for any unlawful purpose</li>
+                        <li>Attempt to gain unauthorized access to other users' data</li>
+                        <li>Interfere with or disrupt the service</li>
+                        <li>Use the service to store or transmit malicious content</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Medical Disclaimer</h5>
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Health Journal is not a substitute for professional medical advice,
+                        diagnosis, or treatment. Always seek the advice of your physician or other qualified health
+                        provider with any questions you may have regarding a medical condition.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">User Accounts</h5>
+                    <p>You are responsible for:</p>
+                    <ul>
+                        <li>Maintaining the confidentiality of your account credentials</li>
+                        <li>All activities that occur under your account</li>
+                        <li>Notifying us immediately of any unauthorized use of your account</li>
+                        <li>Ensuring the accuracy of information you provide</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Limitation of Liability</h5>
+                    <p>Health Journal shall not be liable for any damages arising from the use or inability to use this
+                        service, even if we have been notified of the possibility of such damages.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Modifications</h5>
+                    <p>We may revise these terms at any time without notice. By using this service, you agree to be
+                        bound by the current version of these Terms of Service.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Contact Information</h5>
+                    <p>Questions about the Terms of Service should be sent to us via our <a
+                            href="{{ url_for('views.contact') }}">contact page</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

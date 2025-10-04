@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Visit Details{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('views.dashboard') }}" class="text-decoration-none"><i class="fas fa-arrow-left me-2"></i>Back to Timeline</a>
+</div>
+
+<div class="card card-hover glass-effect p-4" style="border-radius: var(--border-radius);">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="card-title h2 text-primary"><i class="fas fa-stethoscope me-2"></i>Visit: {{ visit.reason }}</h1>
+                <h3 class="card-subtitle mb-2 text-muted h5">with {{ visit.doctor_name or 'N/A' }}</h3>
+            </div>
+            <span class="badge bg-secondary p-2">{{ visit.visit_date.strftime('%B %d, %Y') }}</span>
+        </div>
+        <hr>
+        <h4 class="mt-4">Diagnosis &amp; Notes</h4>
+        <p>{{ visit.diagnosis or 'No diagnosis notes were recorded.' }}</p>
+
+        {% if visit.journal_entries %}
+        <h4 class="mt-4">Symptoms &amp; Notes Recorded for this Visit</h4>
+        <div class="list-group list-group-flush">
+            {% for entry in visit.journal_entries %}
+            <div class="list-group-item" style="background: transparent;">
+                <strong>{{ entry.title }}</strong>
+                <p class="mb-1">{{ entry.content }}</p>
+                <small>Severity: {{ entry.severity }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if visit.prescriptions %}
+        <h4 class="mt-4">Medications Prescribed During this Visit</h4>
+        <div class="list-group list-group-flush">
+            {% for med in visit.prescriptions %}
+            <div class="list-group-item" style="background: transparent;">
+                <strong>{{ med.name }}</strong>
+                <small class="d-block text-muted">{{ med.dosage }} - {{ med.frequency }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if visit.documents %}
+        <h4 class="mt-4">Associated Documents</h4>
+        <div class="list-group list-group-flush">
+            {% for doc in visit.documents %}
+            <a href="{{ url_for('views.get_file', filename=doc.filename) }}" class="list-group-item list-group-item-action" style="background: transparent;">
+                <i class="fas fa-file-alt me-2"></i>{{ doc.filename }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

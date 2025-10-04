@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Privacy Policy</h1>
+            <p class="text-muted">Last updated: {{ now.strftime('%B %d, %Y') }}</p>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Information We Collect</h5>
+                    <p>We collect the following types of information:</p>
+                    <ul>
+                        <li><strong>Account Information:</strong> Username, email address, and password (encrypted)</li>
+                        <li><strong>Health Data:</strong> Journal entries, medication information, and uploaded
+                            documents</li>
+                        <li><strong>Usage Data:</strong> How you interact with our application for improvement purposes
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">How We Use Your Information</h5>
+                    <p>Your information is used solely for:</p>
+                    <ul>
+                        <li>Providing the health journal service</li>
+                        <li>Maintaining and improving our application</li>
+                        <li>Communicating with you about your account</li>
+                        <li>Ensuring the security of your data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Data Security</h5>
+                    <p>We implement appropriate technical and organizational measures to protect your personal
+                        information:</p>
+                    <ul>
+                        <li>All passwords are encrypted using industry-standard methods</li>
+                        <li>Secure server infrastructure with regular security updates</li>
+                        <li>Limited access to personal data by authorized personnel only</li>
+                        <li>Regular security audits and monitoring</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Your Rights</h5>
+                    <p>You have the right to:</p>
+                    <ul>
+                        <li>Access your personal data</li>
+                        <li>Correct inaccurate data</li>
+                        <li>Delete your account and all associated data</li>
+                        <li>Export your data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Contact Us</h5>
+                    <p>If you have any questions about this Privacy Policy, please <a
+                            href="{{ url_for('views.contact') }}">contact us</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

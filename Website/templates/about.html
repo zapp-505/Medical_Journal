@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">About Health Journal</h1>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Our Mission</h5>
+                    <p class="card-text">
+                        Health Journal is a comprehensive personal health tracking application designed to help you take
+                        control of your health journey. Our mission is to provide a secure, user-friendly platform where
+                        you can document your symptoms, manage medications, and maintain a detailed record of your
+                        health information.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Features</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> <strong>Journal Entries:</strong> Track
+                            symptoms, moods, and health observations</li>
+                        <li><i class="bi bi-check-circle text-success"></i> <strong>Medication Management:</strong> Keep
+                            track of your medications, dosages, and schedules</li>
+                        <li><i class="bi bi-check-circle text-success"></i> <strong>Document Upload:</strong> Store
+                            important medical documents securely</li>
+                        <li><i class="bi bi-check-circle text-success"></i> <strong>Privacy First:</strong> Your health
+                            data is private and secure</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Privacy & Security</h5>
+                    <p class="card-text">
+                        We take your privacy seriously. All health information is encrypted and stored securely. Your
+                        data belongs to you, and we will never share it without your explicit consent. For more details,
+                        please see our <a href="{{ url_for('views.privacy') }}">Privacy Policy</a>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('views.contact') }}" class="btn btn-primary">Contact Us</a>
+                <a href="{{ url_for('views.dashboard') if current_user.is_authenticated else url_for('views.home') }}"
+                    class="btn btn-secondary">
+                    {{ 'Back to Dashboard' if current_user.is_authenticated else 'Get Started' }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

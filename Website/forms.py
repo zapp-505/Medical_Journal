@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField
+from wtforms.fields import DateField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from .models import User
@@ -50,6 +51,12 @@ class DocumentUploadForm(FlaskForm):
         FileRequired(),
         FileAllowed(['pdf', 'png', 'jpg', 'jpeg'], 'Images and PDFs only!')
     ])
+    visit = SelectField('Link to Visit (Optional)', coerce=int)
     submit = SubmitField('Upload')
 
-    
+class VisitForm(FlaskForm):
+    doctor_name = StringField("Doctor's Name")
+    reason = StringField("Reason for Visit", validators=[DataRequired()])
+    diagnosis = TextAreaField("Diagnosis / Notes")
+    visit_date = DateField("Date of Visit", format='%Y-%m-%d', validators=[DataRequired()])
+    submit = SubmitField("Save Visit")

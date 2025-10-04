@@ -32,4 +32,10 @@ def create_app(config_class=Config):
     app.register_blueprint(views,url_prefix='/')
     app.register_blueprint(auth,url_prefix='/')
     
+    # Add context processor for current year
+    from datetime import datetime
+    @app.context_processor
+    def inject_now():
+        return {'now': datetime.utcnow()}
+    
     return app
