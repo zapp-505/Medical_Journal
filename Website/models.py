@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default='patient', nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=func.now())
+    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     
     journal_entries = db.relationship('JournalEntry', backref='author', lazy=True)
     medications = db.relationship('Medication', backref='patient', lazy=True)

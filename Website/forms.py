@@ -60,3 +60,7 @@ class VisitForm(FlaskForm):
     diagnosis = TextAreaField("Diagnosis / Notes")
     visit_date = DateField("Date of Visit", format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField("Save Visit")
+
+class UpdateProfileForm(FlaskForm):
+    picture = FileField('Update Profile Picture (jpg, png)', validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField('Update Profile')

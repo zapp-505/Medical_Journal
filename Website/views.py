@@ -1,12 +1,15 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 from flask import current_app
-from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm, VisitForm
+from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm, VisitForm, UpdateProfileForm
 from .models import JournalEntry, Medication, MedicalDocument, Visit
 from werkzeug.utils import secure_filename
 from . import db
 import os
 from flask import send_from_directory
+import secrets
+import os
+from PIL import Image
 
 views = Blueprint('views',__name__)
 
@@ -217,11 +220,70 @@ def delete_document(doc_id):
         flash('Document not found or you do not have permission.', category='error')
     return redirect(url_for('views.documents'))
 
-# Static page routes
-@views.route('/profile')
+@views.route('/edit-journal/<int:entry_id>', methods=['GET', 'POST'])
+@login_required
+def edit_journal(entry_id):
+    # Find the specific entry or return a 404 error
+    entry = JournalEntry.query.get_or_404(entry_id)
+
+    # Security Check: Make sure the logged-in user is the one who created this entry
+    if entry.author != current_user:
+        abort(403) # 403 Forbidden error
+
+    # We can reuse the same form we use for adding an entry
+    form = JournalEntryForm()
+
+    if form.validate_on_submit():
+        # This code runs when the user 'POSTs' the edited form
+        entry.title = form.title.data
+        entry.content = form.content.data
+        entry.severity = form.severity.data
+        db.session.commit()
+        flash('Your journal entry has been updated!', 'success')
+        return redirect(url_for('views.dashboard'))
+
+    elif request.method == 'GET':
+        # This code runs when the user first 'GETs' the page
+        # We pre-fill the form with the data from the database
+        form.title.data = entry.title
+        form.content.data = entry.content
+        form.severity.data = entry.severity
+
+    return render_template('edit_journal.html', form=form)
+
+def save_picture(form_picture):
+    # Create a random, secure filename
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
+
+    # Make sure the upload folder exists
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+    
+    # Resize the image to save space
+    output_size = (125, 125)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    
+    return picture_fn
+
+
+@views.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template("profile.html", user=current_user)
+    form = UpdateProfileForm()
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('views.profile'))
+    
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    return render_template("profile.html", user=current_user, image_file=image_file, form=form)
 
 @views.route('/about')
 def about():

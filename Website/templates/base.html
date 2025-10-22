@@ -237,9 +237,11 @@
             0% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
+
             100% {
                 transform: scale(1);
             }
@@ -265,7 +267,7 @@
                 flex-direction: column;
                 gap: 1rem;
             }
-            
+
             .container::before {
                 opacity: 0.2;
             }
@@ -368,9 +370,13 @@
                             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('views.profile') }}">
-                            <i class="fas fa-user me-1"></i>Profile
+                        <a class="nav-link d-flex align-items-center" href="{{ url_for('views.profile') }}">
+                            <img src="{{ url_for('static', filename='profile_pics/' + current_user.image_file) }}"
+                                class="rounded-circle"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            Profile
                         </a>
                     </li>
                     <li class="nav-item">
@@ -448,7 +454,7 @@
         // Enhanced form handling with loading states
         document.addEventListener('DOMContentLoaded', function () {
             // Navbar scroll effect
-            window.addEventListener('scroll', function() {
+            window.addEventListener('scroll', function () {
                 const navbar = document.querySelector('.navbar');
                 if (window.scrollY > 10) {
                     navbar.classList.add('scrolled');

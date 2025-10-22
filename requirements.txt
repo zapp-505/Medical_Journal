@@ -7,3 +7,4 @@ Flask-Login
 Werkzeug
 Flask-WTF
 email-validator
+Pillow
