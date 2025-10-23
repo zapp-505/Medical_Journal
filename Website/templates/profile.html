@@ -1,20 +1,41 @@
 {% extends "base.html" %}
 {% block title %}My Profile{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-6 col-md-8">
+    <div class="col-lg-7 col-md-9">
         <div class="card card-hover glass-effect p-4" style="border-radius: var(--border-radius);">
-            <div class="card-body text-center">
+            <div class="card-body">
                 
-                <img class="img-thumbnail rounded-circle mb-3" src="{{ image_file }}" style="width: 125px; height: 125px; object-fit: cover;">
+                <div class="text-center">
+                    <img class="img-thumbnail rounded-circle mb-3" src="{{ image_file }}" style="width: 125px; height: 125px; object-fit: cover;">
+                    <h2 class="h4">{{ user.username }}</h2>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <p class="text-muted small">Member Since: {{ user.created_at.strftime('%B %d, %Y') }}</p>
+                </div>
                 
-                <h2 class="h4">{{ user.username }}</h2>
-                <p class="text-muted">{{ user.email }}</p>
-                <hr>
+                <hr class="my-4">
                 
                 <form method="POST" enctype="multipart/form-data" class="text-start">
                     {{ form.hidden_tag() }}
-                    <h5 class="mb-3">Update Profile</h5>
+                    <h5 class="mb-3">Edit Your Profile</h5>
+                    
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-control form-control-lg") }}
+                        {% for error in form.username.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control form-control-lg") }}
+                        {% for error in form.email.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
                     <div class="mb-3">
                         {{ form.picture.label(class="form-label") }}
                         {{ form.picture(class="form-control") }}
@@ -22,6 +43,7 @@
                             <span class="text-danger small">{{ error }}</span>
                         {% endfor %}
                     </div>
+                    
                     {{ form.submit(class="btn btn-health") }}
                 </form>
 

@@ -5,6 +5,7 @@ from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm, VisitFo
 from .models import JournalEntry, Medication, MedicalDocument, Visit
 from werkzeug.utils import secure_filename
 from . import db
+from sqlalchemy import or_
 import os
 from flask import send_from_directory
 import secrets
@@ -278,12 +279,98 @@ def profile():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
             current_user.image_file = picture_file
+        
+        # ADD THIS: Save the updated username and email
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        
         db.session.commit()
         flash('Your profile has been updated!', 'success')
         return redirect(url_for('views.profile'))
     
+    elif request.method == 'GET':
+        # ADD THIS: Pre-fill the form with the user's current data
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template("profile.html", user=current_user, image_file=image_file, form=form)
+
+@views.route('/search', methods=['POST'])
+@login_required
+def search():
+    """
+    Global search across all user's medical records.
+    Searches in: Journal Entries, Visits, Medications, and Documents
+    """
+    query = request.form.get('search_query', '').strip()
+    
+    if not query:
+        flash('Please enter a search term.', 'warning')
+        return redirect(url_for('views.dashboard'))
+    
+    # Search pattern for case-insensitive matching
+    search_pattern = f'%{query}%'
+    
+    # Search Journal Entries (title, content)
+    journal_results = JournalEntry.query.filter(
+        JournalEntry.user_id == current_user.id,
+        or_(
+            JournalEntry.title.ilike(search_pattern),
+            JournalEntry.content.ilike(search_pattern),
+            JournalEntry.severity.ilike(search_pattern)
+        )
+    ).order_by(JournalEntry.created_at.desc()).all()
+    
+    # Search Visits (doctor_name, reason, diagnosis)
+    visit_results = Visit.query.filter(
+        Visit.user_id == current_user.id,
+        or_(
+            Visit.doctor_name.ilike(search_pattern),
+            Visit.reason.ilike(search_pattern),
+            Visit.diagnosis.ilike(search_pattern)
+        )
+    ).order_by(Visit.visit_date.desc()).all()
+    
+    # Search Medications (name, dosage, frequency, notes)
+    medication_results = Medication.query.filter(
+        Medication.user_id == current_user.id,
+        or_(
+            Medication.name.ilike(search_pattern),
+            Medication.dosage.ilike(search_pattern),
+            Medication.frequency.ilike(search_pattern),
+            Medication.notes.ilike(search_pattern)
+        )
+    ).all()
+    
+    # Search Documents (filename)
+    document_results = MedicalDocument.query.filter(
+        MedicalDocument.user_id == current_user.id,
+        MedicalDocument.filename.ilike(search_pattern)
+    ).order_by(MedicalDocument.upload_date.desc()).all()
+    
+    # Calculate total results
+    total_results = (
+        len(journal_results) + 
+        len(visit_results) + 
+        len(medication_results) + 
+        len(document_results)
+    )
+    
+    if total_results == 0:
+        flash(f'No results found for "{query}".', 'info')
+    else:
+        flash(f'Found {total_results} result(s) for "{query}".', 'success')
+    
+    return render_template(
+        'search_results.html',
+        query=query,
+        journal_results=journal_results,
+        visit_results=visit_results,
+        medication_results=medication_results,
+        document_results=document_results,
+        total_results=total_results
+    )
 
 @views.route('/about')
 def about():

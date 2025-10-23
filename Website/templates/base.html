@@ -363,6 +363,21 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                {% if current_user.is_authenticated %}
+                <!-- Search Form -->
+                <form class="d-flex mx-auto" method="POST" action="{{ url_for('views.search') }}"
+                    style="max-width: 400px;">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="search_query"
+                            placeholder="Search your records..." aria-label="Search" required
+                            style="border-radius: 20px 0 0 20px; background: rgba(255,255,255,0.9);">
+                        <button class="btn btn-light" type="submit" style="border-radius: 0 20px 20px 0;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
