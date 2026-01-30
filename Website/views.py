@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 from flask import current_app
-from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm, VisitForm, UpdateProfileForm
+from .forms import JournalEntryForm, MedicationForm, DocumentUploadForm, VisitForm, UpdateProfileForm, ReportForm
 from .models import JournalEntry, Medication, MedicalDocument, Visit
 from werkzeug.utils import secure_filename
 from . import db
@@ -11,6 +11,7 @@ from flask import send_from_directory
 import secrets
 import os
 from PIL import Image
+from .ai_report import ReportGenerator
 
 views = Blueprint('views',__name__)
 
@@ -371,6 +372,33 @@ def search():
         document_results=document_results,
         total_results=total_results
     )
+
+@views.route('/generate-report',methods=['GET','POST'])
+@login_required
+def generate_report():
+    form = ReportForm()
+    if form.validate_on_submit():
+        start_date = form.start_date.data
+        end_date = form.end_date.data
+        
+        # Validate date range
+        if start_date > end_date:
+            flash('Start date must be before end date.', 'danger')
+            return render_template('generate_report.html', form=form)
+        
+        # Generate report using existing ReportGenerator
+        report = ReportGenerator(current_user.id)
+        raw_data = report.fetch_data(start_date, end_date)
+        summary = report.generate_summary(raw_data_list=raw_data)
+        
+        # Display the report
+        return render_template('view_report.html', 
+                             summary=summary,
+                             start_date=start_date,
+                             end_date=end_date)
+    
+    # Show the form (GET request or validation failed)
+    return render_template('generate_report.html', form=form)
 
 @views.route('/about')
 def about():

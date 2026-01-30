@@ -11,3 +11,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     UPLOAD_FOLDER = os.path.join(basedir, 'Website/static/uploads')
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')

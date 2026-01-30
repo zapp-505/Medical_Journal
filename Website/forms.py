@@ -86,3 +86,8 @@ class UpdateProfileForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('That email is already in use. Please choose another.')
+            
+class ReportForm(FlaskForm):
+    start_date = DateField("From", format='%Y-%m-%d', validators=[DataRequired()])
+    end_date = DateField("Till", format='%Y-%m-%d', validators=[DataRequired()])
+    submit = SubmitField('Generate Report')

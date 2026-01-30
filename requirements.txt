@@ -8,3 +8,5 @@ Werkzeug
 Flask-WTF
 email-validator
 Pillow
+google-genai
+markdown

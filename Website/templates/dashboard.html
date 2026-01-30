@@ -53,6 +53,17 @@
     </div>
 </div>
 
+<!-- Consultation Brief Card -->
+<div class="mt-4 mb-4 text-center">
+    <div class="card p-3 border-primary bg-light">
+        <h5>Preparing for a Doctor's Visit?</h5>
+        <p class="small text-muted">Generate a structured summary of your recent symptoms and history to show your physician.</p>
+        <a href="{{ url_for('views.generate_report') }}" class="btn btn-primary">
+            <i class="fas fa-file-medical"></i> Generate Consultation Brief
+        </a>
+    </div>
+</div>
+
 <h3 class="mb-4">Your Health Timeline</h3>
 
 {% if timeline_events %}

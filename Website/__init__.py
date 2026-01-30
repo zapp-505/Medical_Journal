@@ -3,6 +3,7 @@ from config import Config
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+import markdown
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -31,6 +32,11 @@ def create_app(config_class=Config):
 
     app.register_blueprint(views,url_prefix='/')
     app.register_blueprint(auth,url_prefix='/')
+    
+    # Add custom Jinja2 filter for markdown rendering
+    @app.template_filter('markdown')
+    def markdown_filter(text):
+        return markdown.markdown(text, extensions=['nl2br', 'fenced_code'])
     
     # Add context processor for current year
     from datetime import datetime
