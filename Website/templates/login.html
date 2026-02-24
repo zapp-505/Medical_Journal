@@ -11,10 +11,28 @@
                     <div class="mb-3">
                         {{ form.email.label(class="form-label") }}
                         {{ form.email(class="form-control form-control-lg", placeholder="Enter your email") }}
+                        {% if form.email.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.email.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
                         {{ form.password(class="form-control form-control-lg", placeholder="Enter your password") }}
+                        {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.password.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        {{ form.remember.label(class="form-check-label") }}
                     </div>
                     <div class="d-grid mt-4">
                         {{ form.submit(class="btn btn-health btn-lg") }}

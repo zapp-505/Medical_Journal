@@ -412,7 +412,3 @@ def privacy():
 def terms():
     return render_template("terms.html")
 
-@views.route('/contact')
-def contact():
-    return render_template("contact.html")
-
